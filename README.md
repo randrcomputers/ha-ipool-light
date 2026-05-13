@@ -25,6 +25,10 @@ HACS → **Integrations** → **⋮** → **Custom repositories** → category *
 - **Dynamic / music / DIY / SPI** modes from the app (`setDynamicModel`, `setMusic`, …) — can be added later as `select` or `button` entities once mapped.
 - **State read-back** from the lamp (if the firmware exposes it).
 
+## Development
+
+**v0.2.0 experiment** (RGB / warm-cool / dim preset `select` entities from APK tables) is preserved on branch [`save/v0.2-effect-selects`](https://github.com/randrcomputers/ha-ipool-light/tree/save/v0.2-effect-selects). **Stable HACS default is `main` at v0.1.0** — v0.2.0 was rolled back after reports that it broke setups.
+
 ## Legal
 
 *iPool Light* and *LedBle* are names used by the vendor app; this project is independent community software.
