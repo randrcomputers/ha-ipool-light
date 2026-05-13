@@ -14,15 +14,19 @@ HACS → **Integrations** → **⋮** → **Custom repositories** → category *
 - **Bluetooth** integration (adapter or **Bluetooth proxy** near the pool)
 - Light **MAC address** (from HA’s Bluetooth device list or nRF Connect)
 
-## Features (v0.1.0)
+## Features (v0.2.0)
 
 - **Light** entity: on / off, **RGB** color, **brightness** (mapped to the app’s `setBrightness` 0–100% frame).
-- **Assumed state** — this version does not decode BLE notifies; HA reflects the last command you sent.
+- **Select — RGB effect**: all **29** presets from the app’s `rgb_mode` array (static colors, tri/seven color jump & gradient, flashes, etc.) — same bytes as `NetConnectBle.setRgbMode`.
+- **Select — Warm / cool balance**: **11** presets from `ct_mode` (`setColorWarmModel`).
+- **Select — Dimming preset**: **11** levels from `dm_mode` (`setDimModel`).
+- **Assumed state** — no BLE notify decode; HA shows the last command you sent.
 - Writes try the same **three GATT targets** as the Android app (`ffe9` / `ffe1` / `fff3` under services `ffe5` / `ffe0` / `fff0`).
+- One **device** in the registry (light + selects share Bluetooth connection info).
 
-## Not in v0.1.0
+## Not in v0.2.0
 
-- **Dynamic / music / DIY / SPI** modes from the app (`setDynamicModel`, `setMusic`, …) — can be added later as `select` or `button` entities once mapped.
+- **Music / DIY / SPI** and other tabs that use different `NetConnectBle` entry points — can be added if we map those arrays / opcodes.
 - **State read-back** from the lamp (if the firmware exposes it).
 
 ## Legal
