@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "iPool Light (BLE)",
+        "description": "Enter the Bluetooth MAC address of your iPool / LedBle RGB pool light (from Settings → Bluetooth in Home Assistant or from the vendor app / nRF Connect).",
+        "data": {
+          "address": "Bluetooth MAC address",
+          "name": "Name (optional)"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "Invalid MAC address format (use AA:BB:CC:DD:EE:FF)."
+    },
+    "abort": {
+      "already_configured": "This light is already configured."
+    }
+  }
+}
