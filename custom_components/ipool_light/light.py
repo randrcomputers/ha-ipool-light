@@ -15,13 +15,11 @@ from homeassistant.components.light import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util.color import color_hs_to_RGB
 
 from .connection import IpoolLightConnection
-from .const import CONF_ADDRESS, CONF_NAME, DATA_CONNECTION, DEFAULT_NAME, DOMAIN
+from .const import CONF_NAME, DATA_CONNECTION, DEFAULT_NAME, DOMAIN
 from .protocol import frame_brightness, frame_rgb, frame_turn_off, frame_turn_on
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,11 +33,7 @@ async def async_setup_entry(
     """Add light entity."""
     session: IpoolLightConnection = hass.data[DOMAIN][entry.entry_id][DATA_CONNECTION]
     name = entry.data.get(CONF_NAME) or DEFAULT_NAME
-    address = entry.data[CONF_ADDRESS]
-    async_add_entities(
-        [IpoolLightEntity(session, entry.entry_id, name, address)],
-        update_before_add=False,
-    )
+    async_add_entities([IpoolLightEntity(session, entry.entry_id, name)], update_before_add=False)
 
 
 class IpoolLightEntity(LightEntity):
@@ -50,22 +44,11 @@ class IpoolLightEntity(LightEntity):
     _attr_color_mode = ColorMode.RGB
 
     def __init__(
-        self,
-        connection: IpoolLightConnection,
-        entry_id: str,
-        name: str,
-        address: str,
+        self, connection: IpoolLightConnection, entry_id: str, name: str
     ) -> None:
         self._connection = connection
         self._attr_unique_id = f"{entry_id}_light"
         self._attr_name = name
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry_id)},
-            name=name,
-            manufacturer="iPool Light (LedBle)",
-            model="BLE RGB",
-            connections={(dr.CONNECTION_BLUETOOTH, dr.format_mac(address))},
-        )
         self._attr_is_on = False
         self._rgb: tuple[int, int, int] = (255, 255, 255)
         self._brightness: int | None = 255
