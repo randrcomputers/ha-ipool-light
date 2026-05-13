@@ -5,8 +5,8 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from bleak import BleakClient
 from bleak.exc import BleakError
+from bleak_retry_connector import BleakClientWithServiceCache, establish_connection
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 
@@ -23,7 +23,7 @@ class IpoolLightConnection:
         self.hass = hass
         self.address = address
         self._lock = asyncio.Lock()
-        self._client: BleakClient | None = None
+        self._client: BleakClientWithServiceCache | None = None
         self._working_char: str | None = None
 
     @property
@@ -45,13 +45,17 @@ class IpoolLightConnection:
             _LOGGER.debug("disconnect raised BleakError (ignored)", exc_info=True)
         self._client = None
 
-    async def _ensure_connected_locked(self) -> BleakClient:
+    async def _ensure_connected_locked(self) -> BleakClientWithServiceCache:
         if self._client is not None and self._client.is_connected:
             return self._client
         await self._disconnect_locked()
         ble_device = await async_resolve_ble_device(self.hass, self.address)
-        client = BleakClient(ble_device, timeout=45.0)
-        await client.connect()
+        client = await establish_connection(
+            BleakClientWithServiceCache,
+            ble_device,
+            name=ble_device.name or self.address,
+            timeout=45.0,
+        )
         if not client.is_connected:
             raise HomeAssistantError("Failed to connect to iPool Light over BLE")
         self._client = client
