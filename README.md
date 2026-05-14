@@ -1,4 +1,4 @@
-# iPool Light (BLE) — Home Assistant (HACS)
+# iPool Light (BLE) (poolexa)— Home Assistant (HACS)
 
 Unofficial integration for **iPool Light** (LedBle / `com.ledble`) **RGB pool lights** over Bluetooth LE. Packet layout and GATT UUIDs are taken from **iPool Light 1.0.3** (`Ipoolight_1.0.3_APKPure.apk`, `NetConnectBle` in `classes.dex`). **Not affiliated with the app vendor.** Use at your own risk.
 
