@@ -32,27 +32,3 @@ def frame_brightness(percent: int) -> bytes:
     """``NetConnectBle.setBrightness`` (0–100)."""
     p = max(0, min(100, int(percent)))
     return _pack9((126, 4, 1, p, 255, 255, 255, 0, 239))
-
-
-def frame_rgb_mode(mode: int) -> bytes:
-    """``NetConnectBle.setRgbMode`` — animated / static RGB presets (mode 128…156)."""
-    m = int(mode) & 0xFF
-    return _pack9((126, 5, 3, m, 3, 255, 255, 0, 239))
-
-
-def frame_color_warm_model(mode: int) -> bytes:
-    """``NetConnectBle.setColorWarmModel`` — warm/cool balance (``ct_mode``)."""
-    m = int(mode) & 0xFF
-    return _pack9((126, 5, 3, m, 2, 255, 255, 0, 239))
-
-
-def frame_dim_model(mode: int) -> bytes:
-    """``NetConnectBle.setDimModel`` — dimming curve (``dm_mode``)."""
-    m = int(mode) & 0xFF
-    return _pack9((126, 5, 3, m, 1, 255, 255, 0, 239))
-
-
-def frame_dynamic_model(mode: int) -> bytes:
-    """``NetConnectBle.setDynamicModel`` — reserved for future dynamic-tab modes."""
-    m = int(mode) & 0xFF
-    return _pack9((126, 5, 3, m, 4, 255, 255, 0, 239))

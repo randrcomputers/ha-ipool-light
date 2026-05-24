@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from .connection import IpoolLightConnection
 from .const import CONF_ADDRESS, DATA_CONNECTION, DOMAIN
 
-PLATFORMS: list[Platform] = [Platform.LIGHT, Platform.SELECT]
+PLATFORMS: list[Platform] = [Platform.LIGHT]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
