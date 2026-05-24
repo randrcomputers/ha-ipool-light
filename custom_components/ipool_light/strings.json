@@ -16,29 +16,5 @@
     "abort": {
       "already_configured": "This light is already configured."
     }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "iPool Light options",
-        "description": "The light entity always works with on/off, RGB, and brightness. Enable animation presets only if you want the same jump/gradient/flash modes as the iPool app (optional select entities).",
-        "data": {
-          "effect_selects_enabled": "Enable RGB / warm-cool / dim preset selects"
-        }
-      }
-    }
-  },
-  "entity": {
-    "select": {
-      "rgb_effect": {
-        "name": "RGB effect"
-      },
-      "warm_cool": {
-        "name": "Warm / cool balance"
-      },
-      "dim_curve": {
-        "name": "Dimming preset"
-      }
-    }
   }
 }

@@ -7,13 +7,11 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import selector
 
-from .const import CONF_ADDRESS, CONF_NAME, DEFAULT_NAME, DOMAIN, OPT_EFFECT_SELECTS
-from .options import get_integration_options
+from .const import CONF_ADDRESS, CONF_NAME, DEFAULT_NAME, DOMAIN
 
 _MAC_RE = re.compile(r"^([0-9A-Fa-f]{2}:){5}([0-9A-Fa-f]{2})$")
 
@@ -57,31 +55,3 @@ class IpoolLightConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             }
         )
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
-
-    @staticmethod
-    def async_get_options_flow(
-        config_entry: ConfigEntry,
-    ) -> config_entries.OptionsFlow:
-        """Integration options."""
-        return IpoolLightOptionsFlow()
-
-
-class IpoolLightOptionsFlow(config_entries.OptionsFlow):
-    """Optional APK animation preset selects."""
-
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
-
-        current = get_integration_options(self.config_entry)
-        schema = vol.Schema(
-            {
-                vol.Required(
-                    OPT_EFFECT_SELECTS,
-                    default=current[OPT_EFFECT_SELECTS],
-                ): selector.BooleanSelector(),
-            }
-        )
-        return self.async_show_form(step_id="init", data_schema=schema)

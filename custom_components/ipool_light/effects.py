@@ -1,8 +1,7 @@
-"""RGB / CT / dim presets from iPool Light 1.0.3 ``arrays.xml`` (APK 1.0.3)."""
+"""RGB animation presets from iPool Light 1.0.3 ``rgb_mode`` (``setRgbMode``)."""
 
 from __future__ import annotations
 
-# rgb_mode — ``NetConnectBle.setRgbMode`` (``protocol.frame_rgb_mode``).
 RGB_EFFECTS: list[tuple[str, int]] = [
     ("Static red", 128),
     ("Static blue", 129),
@@ -35,32 +34,4 @@ RGB_EFFECTS: list[tuple[str, int]] = [
     ("White flash", 156),
 ]
 
-# ct_mode — ``setColorWarmModel``.
-CT_PRESETS: list[tuple[str, int]] = [
-    ("Warm 0% Cool 100%", 128),
-    ("Warm 10% Cool 90%", 129),
-    ("Warm 20% Cool 80%", 130),
-    ("Warm 30% Cool 70%", 131),
-    ("Warm 40% Cool 60%", 132),
-    ("Warm 50% Cool 50%", 133),
-    ("Warm 60% Cool 40%", 134),
-    ("Warm 70% Cool 30%", 135),
-    ("Warm 80% Cool 20%", 136),
-    ("Warm 90% Cool 10%", 137),
-    ("Warm 100% Cool 0%", 138),
-]
-
-# dm_mode — ``setDimModel``.
-DIM_PRESETS: list[tuple[str, int]] = [
-    ("Dim 0%", 128),
-    ("Dim 10%", 129),
-    ("Dim 20%", 130),
-    ("Dim 30%", 131),
-    ("Dim 40%", 132),
-    ("Dim 50%", 133),
-    ("Dim 60%", 134),
-    ("Dim 70%", 135),
-    ("Dim 80%", 136),
-    ("Dim 90%", 137),
-    ("Dim 100%", 138),
-]
+EFFECT_NAME_TO_MODE: dict[str, int] = dict(RGB_EFFECTS)

@@ -1,0 +1,51 @@
+set_rgb_effect:
+  name: Set RGB effect
+  description: >-
+    Run an iPool / LedBle animation preset (jump, gradient, flash). Does not
+    create extra entities — use from the pool light card or automations.
+  fields:
+    entity_id:
+      required: true
+      example: light.ipool_10_light
+      selector:
+        entity:
+          domain: light
+    effect:
+      required: true
+      example: Tricolor jump
+      selector:
+        select:
+          options:
+            - Static red
+            - Static blue
+            - Static green
+            - Static cyan
+            - Static yellow
+            - Static purple
+            - Static white
+            - Tricolor jump
+            - Seven-color jump
+            - Tricolor gradient
+            - Seven-color gradient
+            - Red gradient
+            - Green gradient
+            - Blue gradient
+            - Yellow gradient
+            - Cyan gradient
+            - Purple gradient
+            - White gradient
+            - Red-Green gradient
+            - Red-Blue gradient
+            - Green-Blue gradient
+            - Seven-color flash
+            - Red flash
+            - Green flash
+            - Blue flash
+            - Yellow flash
+            - Cyan flash
+            - Purple flash
+            - White flash
+    turn_on_first:
+      default: true
+      selector:
+        boolean:

@@ -14,34 +14,25 @@ HACS → **Integrations** → **⋮** → **Custom repositories** → category *
 
 - Home Assistant **2024.1+**
 - **Bluetooth** integration (adapter or **Bluetooth proxy** near the pool)
-- Light **MAC address** (from HA’s Bluetooth device list or nRF Connect — double-check bytes, e.g. `78:9C:E7:08:4C:C2`)
+- Light **MAC address** (confirm in **Settings → Bluetooth**, e.g. `78:9C:E7:08:4C:C2`)
 
-## Features (v0.2.2)
+## Features (v0.1.3)
 
-- **Light** entity: on / off, **RGB** color, **brightness** (always enabled).
-- **Optional** (Settings → integration → **Configure**): **RGB effect**, **Warm / cool balance**, **Dimming preset** selects — same APK modes as jump / gradient / flash (off by default so the light keeps working like v0.1.x).
+- **Light** entity only: on / off, **RGB** color, **brightness** (stable — no extra `select` entities).
+- **Service `ipool_light.set_rgb_effect`** — APK jump / gradient / flash presets (for the **pool light card** or automations).
 - **Assumed state** — no BLE notify decode; HA reflects the last command you sent.
-- Short BLE sessions: connect, send 9-byte frame, disconnect (reduces wedged links).
+- Short BLE sessions: connect, send frame, disconnect.
 
-### Enable animations
-
-1. **Settings → Devices & services → iPool Light (BLE) → Configure**
-2. Turn on **Enable RGB / warm-cool / dim preset selects**
-3. Integration reloads — three **select** entities appear on the device
-4. Turn **light** on, then set **RGB effect** (e.g. **Tricolor jump**)
-
-### Scenes
+### Effects (card or Developer tools)
 
 ```yaml
-entities:
-  light.ipool_light:
-    state: on
-    brightness: 255
-  select.ipool_light_rgb_effect:
-    option: "Seven-color jump"
+action: ipool_light.set_rgb_effect
+data:
+  entity_id: light.your_ipool_light
+  effect: "Tricolor jump"
 ```
 
-(Select entities exist only when the option above is enabled.)
+Use the **[pool light card](https://github.com/randrcomputers/ha-pool-light-card)** for a dropdown next to the color swatches. The built-in HA light more-info dialog does not include effects (colors only).
 
 ## Legal
 
