@@ -13,15 +13,10 @@ from .service import async_register_services, async_unregister_services
 PLATFORMS: list[Platform] = [Platform.LIGHT]
 
 
-async def async_setup(hass: HomeAssistant) -> bool:
-    """Register domain services (no extra entities)."""
-    async_register_services(hass)
-    return True
-
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up iPool Light from a config entry."""
     hass.data.setdefault(DOMAIN, {})
+    async_register_services(hass)
     session = IpoolLightConnection(hass, entry.data[CONF_ADDRESS])
     hass.data[DOMAIN][entry.entry_id] = {DATA_CONNECTION: session}
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -35,10 +30,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry_data = hass.data.get(DOMAIN, {}).pop(entry.entry_id, None)
         if entry_data and (session := entry_data.get(DATA_CONNECTION)):
             await session.async_disconnect()
+        if not hass.data.get(DOMAIN):
+            async_unregister_services(hass)
     return unload_ok
-
-
-async def async_unload(hass: HomeAssistant) -> bool:
-    """Unload domain services when integration removed from HA."""
-    async_unregister_services(hass)
-    return True
