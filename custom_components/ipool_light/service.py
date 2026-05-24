@@ -30,17 +30,30 @@ SERVICE_SCHEMA = vol.Schema(
 )
 
 
+def _entry_id_for_light_entity(ent) -> str | None:
+    """Resolve config entry id from registry (config_entry_id or ``{id}_light`` unique_id)."""
+    if ent.config_entry_id:
+        return ent.config_entry_id
+    uid = ent.unique_id
+    if uid and uid.endswith("_light"):
+        return uid[: -len("_light")]
+    return None
+
+
 def _session_for_light(hass: HomeAssistant, entity_id: str) -> IpoolLightConnection:
     registry = er.async_get(hass)
     ent = registry.async_get(entity_id)
     if ent is None:
         raise ServiceValidationError(f"Unknown entity: {entity_id}")
-    if ent.platform != "light" or not ent.config_entry_id:
-        raise ServiceValidationError(f"{entity_id} is not an iPool Light entity")
-    entry = hass.config_entries.async_get_entry(ent.config_entry_id)
+    entry_id = _entry_id_for_light_entity(ent)
+    if entry_id is None:
+        raise ServiceValidationError(
+            f"{entity_id} is not linked to an iPool Light config entry"
+        )
+    entry = hass.config_entries.async_get_entry(entry_id)
     if entry is None or entry.domain != DOMAIN:
-        raise ServiceValidationError(f"{entity_id} is not from {DOMAIN}")
-    bucket = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+        raise ServiceValidationError(f"{entity_id} is not an iPool Light entity")
+    bucket = hass.data.get(DOMAIN, {}).get(entry_id)
     if not bucket or not (session := bucket.get(DATA_CONNECTION)):
         raise HomeAssistantError("iPool Light is not loaded")
     return session
