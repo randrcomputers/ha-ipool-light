@@ -1,39 +1,55 @@
-# iPool Light (BLE) (poolexa)— Home Assistant (HACS)
+# Pool Light Card
 
-Unofficial integration for **RGB pool lights** that speak the **LedBle** protocol (Android package **`com.ledble`**, app names such as **iPool Light**). The same hardware is often sold under **Poolexa** and **other generic / white-label brands**; if your lamp uses that app stack and the usual LedBle GATT services, this integration may work—**verify your MAC and behavior**; we do not claim compatibility with every clone firmware.
+Lovelace card for any **RGB `light`** entity — fixture artwork, color presets, brightness slider, power toggle, and a BLE-style connectivity badge (same look as the [Pool Cleaner Card](https://github.com/randrcomputers/ha-pool-cleaner-card)).
 
-Packet layout and GATT UUIDs are taken from **iPool Light 1.0.3** (`Ipoolight_1.0.3_APKPure.apk`, `NetConnectBle` in `classes.dex`). **Not affiliated with any vendor or store brand.** Use at your own risk.
+Works with **[iPool Light](https://github.com/randrcomputers/ha-ipool-light)** (**v0.1.3+** for the effect dropdown). Other RGB lights can use colors only.
 
-## Share / install via HACS
+### Effect dropdown (iPool / LedBle)
 
-**Custom repository URL:** [https://github.com/randrcomputers/ha-ipool-light](https://github.com/randrcomputers/ha-ipool-light)
+Requires integration **v0.1.3** (`ipool_light.set_rgb_effect` service). The card shows a dropdown (jump, gradient, flash) like the iPool app — **no extra HA entities**, so it does not break the light integration.
 
-HACS → **Integrations** → **⋮** → **Custom repositories** → category **Integration** → paste the URL → **Add** → install **iPool Light (BLE)** → restart Home Assistant.
+The built-in HA **light more-info** dialog (power / brightness / color wheel) does not include effects; use this card on your dashboard for animations.
 
-## Requirements
+When you pick an effect, the card can **animate the lens glow** on the fixture image (jump = stepped colors, gradient = hue sweep, flash = pulse). This is a **card-only preview** — Home Assistant does not report the lamp’s live effect mode, so after a page reload you may need to select the effect again to see the animation. Turn off **Animate lens glow when an effect is selected** in the card editor if you prefer a solid glow only.
 
-- Home Assistant **2024.1+**
-- **Bluetooth** integration (adapter or **Bluetooth proxy** near the pool)
-- Light **MAC address** (confirm in **Settings → Bluetooth**, e.g. `78:9C:E7:08:4C:C2`)
+![Pool light card preview](media/preview.png)
 
-## Features (v0.1.3)
+## Install
 
-- **Light** entity only: on / off, **RGB** color, **brightness** (stable — no extra `select` entities).
-- **Service `ipool_light.set_rgb_effect`** — APK jump / gradient / flash presets (for the **pool light card** or automations).
-- **Assumed state** — no BLE notify decode; HA reflects the last command you sent.
-- Short BLE sessions: connect, send frame, disconnect.
+1. **HACS** → **Frontend** → **Custom repositories** → add `https://github.com/randrcomputers/ha-pool-light-card`
+2. **Frontend** → **Pool Light Card** → **Download**
+3. **Settings** → **Dashboards** → **⋮** → **Reload resources**, then refresh the browser (**Ctrl+F5**)
 
-### Effects (card or Developer tools)
+## Pictures on Home Assistant
+
+Copy files from the repo folder **`pool_card/`** into **`config/www/pool_card/`** on your HA host.
+
+| File to copy | Example URL |
+| --- | --- |
+| **`pool_light_fixture.png`** (fixture, light on) | `/local/pool_card/pool_light_fixture.png` |
+| **`light_control_box.png`** (control box, light off) | `/local/pool_card/light_control_box.png` |
+| **`ipool_light.png`** (your product photo) | `/local/pool_card/ipool_light.png` |
+
+See **`pool_card/README.md`** for all bundled images.
+
+If the colored glow does not line up with your lens, adjust **Lens glow — top / left / size %** in the card editor. If the color is hard to see when the light is on, raise **Lens glow — brightness %** (default **140**; try up to **200**).
+
+## Add the card
+
+Pick your **Light** entity in the UI, or YAML:
 
 ```yaml
-action: ipool_light.set_rgb_effect
-data:
-  entity_id: light.your_ipool_light
-  effect: "Tricolor jump"
+type: custom:pool-light-card
+entity: light.ipool_light
+image: /local/pool_card/pool_light_fixture.png
+image_control_box: /local/pool_card/light_control_box.png
+show_fixture_when: auto
 ```
 
-Use the **[pool light card](https://github.com/randrcomputers/ha-pool-light-card)** for a dropdown next to the color swatches. The built-in HA light more-info dialog does not include effects (colors only).
+**Auto** shows the fixture while the light is on and the control box when off (like the pool cleaner robot / PSU swap).
 
-## Legal
+Optional **Connected** binary sensor lights the BLE badge when `on`.
 
-*iPool Light*, *Poolexa*, *LedBle*, and similar names are trademarks or trade names of their respective owners; this project is independent community software and is not endorsed by them.
+---
+
+**Requirements:** Home Assistant 2024.1+ and a `light` entity with `rgb` color mode.
