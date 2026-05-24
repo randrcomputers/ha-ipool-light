@@ -16,5 +16,18 @@
     "abort": {
       "already_configured": "This light is already configured."
     }
+  },
+  "entity": {
+    "select": {
+      "rgb_effect": {
+        "name": "RGB effect"
+      },
+      "warm_cool": {
+        "name": "Warm / cool balance"
+      },
+      "dim_curve": {
+        "name": "Dimming preset"
+      }
+    }
   }
 }

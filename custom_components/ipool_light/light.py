@@ -15,11 +15,13 @@ from homeassistant.components.light import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util.color import color_hs_to_RGB
 
 from .connection import IpoolLightConnection
-from .const import CONF_NAME, DATA_CONNECTION, DEFAULT_NAME, DOMAIN
+from .const import CONF_ADDRESS, CONF_NAME, DATA_CONNECTION, DEFAULT_NAME, DOMAIN
 from .protocol import frame_brightness, frame_rgb, frame_turn_off, frame_turn_on
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,14 +46,31 @@ class IpoolLightEntity(LightEntity):
     _attr_color_mode = ColorMode.RGB
 
     def __init__(
-        self, connection: IpoolLightConnection, entry_id: str, name: str
+        self,
+        connection: IpoolLightConnection,
+        entry_id: str,
+        name: str,
+        address: str,
     ) -> None:
         self._connection = connection
+        self._entry_id = entry_id
+        self._device_title = name
+        self._address = address
         self._attr_unique_id = f"{entry_id}_light"
         self._attr_name = name
         self._attr_is_on = False
         self._rgb: tuple[int, int, int] = (255, 255, 255)
         self._brightness: int | None = 255
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._entry_id)},
+            name=self._device_title,
+            manufacturer="LedBle",
+            model="iPool Light (BLE)",
+            connections={(dr.CONNECTION_BLUETOOTH, self._address)},
+        )
 
     @property
     def rgb_color(self) -> tuple[int, int, int] | None:
