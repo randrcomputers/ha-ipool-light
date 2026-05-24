@@ -18,6 +18,9 @@ GATT_WRITE_TARGETS: list[tuple[str, str]] = [
 # Prefer matching devices that expose the primary LED service in advertisements.
 SERVICE_UUID_FILTER = "0000ffe0-0000-1000-8000-00805f9b34fb"
 
-BLE_ADVERTISEMENT_WAIT_SECONDS = 30
+# After HA restarts or a bad session, the first command may need extra scan time.
+BLE_ADVERTISEMENT_WAIT_SECONDS = 60
 
 DATA_CONNECTION = "connection"
+
+OPT_EFFECT_SELECTS = "effect_selects_enabled"

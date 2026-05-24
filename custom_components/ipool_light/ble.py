@@ -52,9 +52,11 @@ def _ble_device_from_discovered(hass: HomeAssistant, addr: str) -> BLEDevice | N
     want_l = dr.format_mac(addr).lower()
     filt = SERVICE_UUID_FILTER.lower()
 
-    def pick(require_service: bool) -> BLEDevice | None:
+    def pick(require_service: bool, connectable: bool) -> BLEDevice | None:
         best: tuple[int, BluetoothServiceInfoBleak] | None = None
-        for si in bluetooth.async_discovered_service_info(hass, connectable=True):
+        for si in bluetooth.async_discovered_service_info(
+            hass, connectable=connectable
+        ):
             addr_d = si.address.lower()
             name_d = _addr_hex_digits(si.name or "")
             if addr_d != want_l and name_d != want:
@@ -69,7 +71,11 @@ def _ble_device_from_discovered(hass: HomeAssistant, addr: str) -> BLEDevice | N
                 best = (rssi, si)
         return best[1].device if best else None
 
-    return pick(True) or pick(False)
+    for connectable in (True, False):
+        dev = pick(True, connectable) or pick(False, connectable)
+        if dev is not None:
+            return dev
+    return None
 
 
 async def async_resolve_ble_device(hass: HomeAssistant, address: str) -> BLEDevice:

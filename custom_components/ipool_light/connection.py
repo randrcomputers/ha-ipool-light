@@ -99,11 +99,12 @@ class IpoolLightConnection:
                         except BleakError as err2:
                             last_err = err2
 
-                await self._disconnect_locked()
                 raise HomeAssistantError(
                     "iPool Light: no working GATT write characteristic "
                     "(expected LedBle ffe1 / ffe9 / fff3 on this firmware)."
                 ) from last_err
             except BleakError as err:
-                await self._disconnect_locked()
                 raise HomeAssistantError(f"BLE error: {err}") from err
+            finally:
+                # Release GATT after each command so a wedged link does not block ads.
+                await self._disconnect_locked()
