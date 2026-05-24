@@ -46,7 +46,8 @@ def _session_for_light(hass: HomeAssistant, entity_id: str) -> IpoolLightConnect
     return session
 
 
-async def _async_set_rgb_effect(hass: HomeAssistant, call: ServiceCall) -> None:
+async def _async_set_rgb_effect(call: ServiceCall) -> None:
+    hass = call.hass
     entity_ids: list[str] = cv.ensure_list(call.data[ATTR_ENTITY_ID])
     effect: str = call.data["effect"]
     turn_on_first: bool = call.data["turn_on_first"]
