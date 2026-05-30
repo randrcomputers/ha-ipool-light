@@ -12,20 +12,28 @@ from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_registry as er
 
-from .connection import IpoolLightConnection
-from .const import DATA_CONNECTION, DOMAIN
+from .const import DATA_CONNECTION, DATA_LIGHT_ENTITY, DOMAIN
 from .effects import EFFECT_NAME_TO_MODE
-from .protocol import frame_rgb_mode, frame_turn_on
+from .light import IpoolLightEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 SERVICE_SET_RGB_EFFECT = "set_rgb_effect"
+SERVICE_SET_EFFECT_SPEED = "set_effect_speed"
 
-SERVICE_SCHEMA = vol.Schema(
+SERVICE_SET_RGB_EFFECT_SCHEMA = vol.Schema(
     {
         vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
         vol.Required("effect"): vol.In(list(EFFECT_NAME_TO_MODE.keys())),
         vol.Optional("turn_on_first", default=True): bool,
+        vol.Optional("speed"): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
+    }
+)
+
+SERVICE_SET_EFFECT_SPEED_SCHEMA = vol.Schema(
+    {
+        vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
+        vol.Required("speed"): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
     }
 )
 
@@ -40,7 +48,7 @@ def _entry_id_for_light_entity(ent) -> str | None:
     return None
 
 
-def _session_for_light(hass: HomeAssistant, entity_id: str) -> IpoolLightConnection:
+def _light_entity(hass: HomeAssistant, entity_id: str) -> IpoolLightEntity:
     registry = er.async_get(hass)
     ent = registry.async_get(entity_id)
     if ent is None:
@@ -54,9 +62,12 @@ def _session_for_light(hass: HomeAssistant, entity_id: str) -> IpoolLightConnect
     if entry is None or entry.domain != DOMAIN:
         raise ServiceValidationError(f"{entity_id} is not an iPool Light entity")
     bucket = hass.data.get(DOMAIN, {}).get(entry_id)
-    if not bucket or not (session := bucket.get(DATA_CONNECTION)):
+    if not bucket or not bucket.get(DATA_CONNECTION):
         raise HomeAssistantError("iPool Light is not loaded")
-    return session
+    light = bucket.get(DATA_LIGHT_ENTITY)
+    if not isinstance(light, IpoolLightEntity) or light.entity_id != entity_id:
+        raise ServiceValidationError(f"{entity_id} is not an iPool Light entity")
+    return light
 
 
 async def _async_set_rgb_effect(call: ServiceCall) -> None:
@@ -64,32 +75,56 @@ async def _async_set_rgb_effect(call: ServiceCall) -> None:
     entity_ids: list[str] = cv.ensure_list(call.data[ATTR_ENTITY_ID])
     effect: str = call.data["effect"]
     turn_on_first: bool = call.data["turn_on_first"]
-    mode = EFFECT_NAME_TO_MODE[effect]
-    payload = frame_rgb_mode(mode)
+    speed = call.data.get("speed")
     for entity_id in entity_ids:
-        session = _session_for_light(hass, entity_id)
-        if turn_on_first:
-            await session.async_send_frame(frame_turn_on())
-        await session.async_send_frame(payload)
-        _LOGGER.debug("iPool Light %s: effect %s (mode %s)", entity_id, effect, mode)
+        light = _light_entity(hass, entity_id)
+        await light.async_apply_effect(
+            effect, speed=speed, turn_on_first=turn_on_first
+        )
+        _LOGGER.debug(
+            "iPool Light %s: effect %s (mode %s, speed %s)",
+            entity_id,
+            effect,
+            EFFECT_NAME_TO_MODE[effect],
+            light._effect_speed,
+        )
+
+
+async def _async_set_effect_speed(call: ServiceCall) -> None:
+    hass = call.hass
+    entity_ids: list[str] = cv.ensure_list(call.data[ATTR_ENTITY_ID])
+    speed: int = call.data["speed"]
+    for entity_id in entity_ids:
+        light = _light_entity(hass, entity_id)
+        await light.async_set_effect_speed(speed)
+        _LOGGER.debug("iPool Light %s: effect speed %s", entity_id, speed)
 
 
 @callback
 def async_register_services(hass: HomeAssistant) -> None:
-    """Register domain services once."""
+    """Register domain services (re-register so schema updates apply after upgrades)."""
     if hass.services.has_service(DOMAIN, SERVICE_SET_RGB_EFFECT):
-        return
+        hass.services.async_remove(DOMAIN, SERVICE_SET_RGB_EFFECT)
+    if hass.services.has_service(DOMAIN, SERVICE_SET_EFFECT_SPEED):
+        hass.services.async_remove(DOMAIN, SERVICE_SET_EFFECT_SPEED)
     hass.services.async_register(
         DOMAIN,
         SERVICE_SET_RGB_EFFECT,
         _async_set_rgb_effect,
-        schema=SERVICE_SCHEMA,
+        schema=SERVICE_SET_RGB_EFFECT_SCHEMA,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_SET_EFFECT_SPEED,
+        _async_set_effect_speed,
+        schema=SERVICE_SET_EFFECT_SPEED_SCHEMA,
     )
 
 
 @callback
 def async_unregister_services(hass: HomeAssistant) -> None:
     """Remove domain services when integration unloads."""
-    if not hass.services.has_service(DOMAIN, SERVICE_SET_RGB_EFFECT):
-        return
-    hass.services.async_remove(DOMAIN, SERVICE_SET_RGB_EFFECT)
+    if hass.services.has_service(DOMAIN, SERVICE_SET_RGB_EFFECT):
+        hass.services.async_remove(DOMAIN, SERVICE_SET_RGB_EFFECT)
+    if hass.services.has_service(DOMAIN, SERVICE_SET_EFFECT_SPEED):
+        hass.services.async_remove(DOMAIN, SERVICE_SET_EFFECT_SPEED)

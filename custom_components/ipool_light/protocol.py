@@ -34,10 +34,14 @@ def frame_brightness(percent: int) -> bytes:
     return _pack9((126, 4, 1, p, 255, 255, 255, 0, 239))
 
 
-def frame_rgb_mode(mode: int) -> bytes:
-    """``NetConnectBle.setRgbMode`` — animated / static RGB presets (mode 128…156)."""
+def frame_rgb_mode(mode: int, speed: int = 3) -> bytes:
+    """``NetConnectBle.setRgbMode`` — animated / static RGB presets (mode 128…156).
+
+    The fifth payload byte is animation speed in the app (typically 1–10).
+    """
     m = int(mode) & 0xFF
-    return _pack9((126, 5, 3, m, 3, 255, 255, 0, 239))
+    s = max(1, min(10, int(speed)))
+    return _pack9((126, 5, 3, m, s, 255, 255, 0, 239))
 
 
 def frame_color_warm_model(mode: int) -> bytes:

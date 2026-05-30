@@ -1,8 +1,8 @@
 set_rgb_effect:
   name: Set RGB effect
   description: >-
-    Run an iPool / LedBle animation preset (jump, gradient, flash). Does not
-    create extra entities — use from the pool light card or automations.
+    Run an iPool / LedBle animation preset (jump, gradient, flash). Stores the
+    active effect on the light entity for the pool light card.
   fields:
     entity_id:
       required: true
@@ -49,3 +49,35 @@ set_rgb_effect:
       default: true
       selector:
         boolean:
+    speed:
+      required: false
+      name: Effect speed
+      description: Animation speed 1 (slow) to 10 (fast). Default 3.
+      example: 3
+      selector:
+        number:
+          min: 1
+          max: 10
+          step: 1
+          mode: slider
+
+set_effect_speed:
+  name: Set effect speed
+  description: >-
+    Change animation speed for the current effect (re-sends the active preset).
+  fields:
+    entity_id:
+      required: true
+      example: light.ipool_10_light
+      selector:
+        entity:
+          domain: light
+    speed:
+      required: true
+      example: 5
+      selector:
+        number:
+          min: 1
+          max: 10
+          step: 1
+          mode: slider

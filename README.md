@@ -16,10 +16,12 @@ HACS → **Integrations** → **⋮** → **Custom repositories** → category *
 - **Bluetooth** integration (adapter or **Bluetooth proxy** near the pool)
 - Light **MAC address** (confirm in **Settings → Bluetooth**, e.g. `78:9C:E7:08:4C:C2`)
 
-## Features (v0.1.3)
+## Features (v0.1.7)
 
 - **Light** entity only: on / off, **RGB** color, **brightness** (stable — no extra `select` entities).
-- **Service `ipool_light.set_rgb_effect`** — APK jump / gradient / flash presets (for the **pool light card** or automations).
+- **Attributes `ipool_effect` / `ipool_effect_speed`** — remembered on the entity for the pool light card.
+- **Service `ipool_light.set_rgb_effect`** — APK jump / gradient / flash presets (optional **speed** 1–10).
+- **Service `ipool_light.set_effect_speed`** — change speed for the active effect.
 - **Assumed state** — no BLE notify decode; HA reflects the last command you sent.
 - Short BLE sessions: connect, send frame, disconnect.
 
@@ -30,6 +32,14 @@ action: ipool_light.set_rgb_effect
 data:
   entity_id: light.your_ipool_light
   effect: "Tricolor jump"
+  speed: 5
+```
+
+```yaml
+action: ipool_light.set_effect_speed
+data:
+  entity_id: light.your_ipool_light
+  speed: 8
 ```
 
 Use the **[pool light card](https://github.com/randrcomputers/ha-pool-light-card)** for a dropdown next to the color swatches. The built-in HA light more-info dialog does not include effects (colors only).
