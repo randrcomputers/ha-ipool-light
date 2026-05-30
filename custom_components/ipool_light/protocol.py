@@ -52,11 +52,11 @@ def ha_speed_slider_to_wire(speed_1_10: int) -> int:
 def frame_rgb_mode(mode: int) -> bytes:
     """``NetConnectBle.setRgbMode`` — animated / static RGB presets (mode 128…156).
 
-    APK layout: ``(126, 5, 3, mode, 3, 255, 0, 239)``. Speed is **not** in this frame;
+    APK layout: ``(126, 5, 3, mode, 3, 255, 255, 0, 239)``. Speed is **not** in this frame;
     send ``frame_speed`` separately (LedBle action 02).
     """
     m = int(mode) & 0xFF
-    return _pack9((126, 5, 3, m, 3, 255, 0, 239))
+    return _pack9((126, 5, 3, m, 3, 255, 255, 0, 239))
 
 
 def frame_color_warm_model(mode: int) -> bytes:
