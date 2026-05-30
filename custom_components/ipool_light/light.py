@@ -20,7 +20,13 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util.color import color_hs_to_RGB
 
 from .connection import IpoolLightConnection
-from .const import CONF_NAME, DATA_CONNECTION, DATA_LIGHT_ENTITY, DEFAULT_NAME, DOMAIN
+from .const import (
+    CONF_NAME,
+    DATA_CONNECTION,
+    DATA_LIGHT_ENTITY,
+    DEFAULT_NAME,
+    DOMAIN,
+)
 from .effects import EFFECT_NAME_TO_MODE
 from .protocol import (
     frame_brightness,
@@ -46,7 +52,6 @@ async def async_setup_entry(
     session: IpoolLightConnection = hass.data[DOMAIN][entry.entry_id][DATA_CONNECTION]
     name = entry.data.get(CONF_NAME) or DEFAULT_NAME
     entity = IpoolLightEntity(session, entry.entry_id, name)
-    hass.data[DOMAIN][entry.entry_id][DATA_LIGHT_ENTITY] = entity
     async_add_entities([entity], update_before_add=False)
 
 
@@ -61,6 +66,7 @@ class IpoolLightEntity(LightEntity, RestoreEntity):
         self, connection: IpoolLightConnection, entry_id: str, name: str
     ) -> None:
         self._connection = connection
+        self._entry_id = entry_id
         self._attr_unique_id = f"{entry_id}_light"
         self._attr_name = name
         self._attr_is_on = False
@@ -72,6 +78,9 @@ class IpoolLightEntity(LightEntity, RestoreEntity):
     async def async_added_to_hass(self) -> None:
         """Restore last effect / speed so the pool light card survives refresh."""
         await super().async_added_to_hass()
+        bucket = self.hass.data.get(DOMAIN, {}).get(self._entry_id)
+        if bucket is not None:
+            bucket[DATA_LIGHT_ENTITY] = self
         if (last_state := await self.async_get_last_state()) is None:
             return
         attrs = last_state.attributes
@@ -125,7 +134,7 @@ class IpoolLightEntity(LightEntity, RestoreEntity):
         if turn_on_first:
             await self._connection.async_send_frame(frame_turn_on())
         await self._connection.async_send_frame(
-            frame_rgb_mode(mode, self._effect_speed)
+            frame_rgb_mode(mode, speed)
         )
         self._active_effect = effect_name
         self._attr_is_on = True

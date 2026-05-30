@@ -65,7 +65,7 @@ def _light_entity(hass: HomeAssistant, entity_id: str) -> IpoolLightEntity:
     if not bucket or not bucket.get(DATA_CONNECTION):
         raise HomeAssistantError("iPool Light is not loaded")
     light = bucket.get(DATA_LIGHT_ENTITY)
-    if not isinstance(light, IpoolLightEntity) or light.entity_id != entity_id:
+    if not isinstance(light, IpoolLightEntity):
         raise ServiceValidationError(f"{entity_id} is not an iPool Light entity")
     return light
 

@@ -67,6 +67,7 @@ class IpoolLightConnection:
         """Write the 9-byte frame using the same GATT fallbacks as the Android app."""
         if len(payload) != 9:
             raise ValueError("LedBle payload must be 9 bytes")
+        _LOGGER.debug("iPool Light TX: %s", " ".join(f"{b:02x}" for b in payload))
         async with self._lock:
             try:
                 client = await self._ensure_connected_locked()
