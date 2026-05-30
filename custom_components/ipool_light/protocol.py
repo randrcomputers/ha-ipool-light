@@ -37,20 +37,16 @@ def frame_brightness(percent: int) -> bytes:
 def frame_rgb_mode(mode: int, speed: int | None = None) -> bytes:
     """``NetConnectBle.setRgbMode`` — animated / static RGB presets (mode 128…156).
 
-    APK layout (LedBle 9-byte frame):
-    ``[126, 5, 3, mode, 3, pad, 255, 255, 0, 239]``
+    APK 9-byte layout: ``(126, 5, 3, mode, 3, pad, 255, 0, 239)``
 
-    Byte index **4** must be **3** (same family as dim=1, color_warm=2). It is **not**
-    animation speed — using 1–10 there breaks every effect command.
-
-    Optional ``speed`` (if confirmed on your firmware) may map to byte index **5**
-    (APK default ``255``). When omitted, byte 5 stays ``255`` as in the working build.
+    Byte index **4** must be **3** (rgb mode — not speed). Optional ``speed`` may use
+    byte index **5** (APK default ``255``).
     """
     m = int(mode) & 0xFF
     b5 = 255
     if speed is not None:
         b5 = max(1, min(10, int(speed)))
-    return _pack9((126, 5, 3, m, 3, b5, 255, 255, 0, 239))
+    return _pack9((126, 5, 3, m, 3, b5, 255, 0, 239))
 
 
 def frame_color_warm_model(mode: int) -> bytes:
