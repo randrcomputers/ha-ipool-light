@@ -21,7 +21,7 @@ HACS → **Integrations** → **⋮** → **Custom repositories** → category *
 - **Light** entity only: on / off, **RGB** color, **brightness** (stable — no extra `select` entities).
 - **Attributes `ipool_effect` / `ipool_effect_speed`** — remembered on the entity for the pool light card.
 - **Service `ipool_light.set_rgb_effect`** — APK jump / gradient / flash presets (optional **speed** 1–10).
-- **Service `ipool_light.set_effect_speed`** — change speed for the active effect.
+- **Service `ipool_light.set_effect_speed`** — separate LedBle speed command (0–100 on the wire; card slider 1–10).
 - **Assumed state** — no BLE notify decode; HA reflects the last command you sent.
 - Short BLE sessions: connect, send frame, disconnect.
 

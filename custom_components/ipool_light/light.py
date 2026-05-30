@@ -32,8 +32,10 @@ from .protocol import (
     frame_brightness,
     frame_rgb,
     frame_rgb_mode,
+    frame_speed,
     frame_turn_off,
     frame_turn_on,
+    ha_speed_slider_to_wire,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -133,24 +135,21 @@ class IpoolLightEntity(LightEntity, RestoreEntity):
             self._effect_speed = max(1, min(10, int(speed)))
         if turn_on_first:
             await self._connection.async_send_frame(frame_turn_on())
+        await self._connection.async_send_frame(frame_rgb_mode(mode))
         await self._connection.async_send_frame(
-            frame_rgb_mode(mode, speed)
+            frame_speed(ha_speed_slider_to_wire(self._effect_speed))
         )
         self._active_effect = effect_name
         self._attr_is_on = True
         self.async_write_ha_state()
 
     async def async_set_effect_speed(self, speed: int) -> None:
-        """Re-send the current effect with a new animation speed."""
-        if not self._active_effect:
-            self._effect_speed = max(1, min(10, int(speed)))
-            self.async_write_ha_state()
-            return
-        await self.async_apply_effect(
-            self._active_effect,
-            speed=speed,
-            turn_on_first=False,
+        """Re-send animation speed (LedBle action 02) for the active effect."""
+        self._effect_speed = max(1, min(10, int(speed)))
+        await self._connection.async_send_frame(
+            frame_speed(ha_speed_slider_to_wire(self._effect_speed))
         )
+        self.async_write_ha_state()
 
     def _clear_effect(self) -> None:
         self._active_effect = None
